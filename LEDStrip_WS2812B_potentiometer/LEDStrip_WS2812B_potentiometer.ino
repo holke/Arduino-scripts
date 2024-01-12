@@ -9,8 +9,9 @@
 #include <Adafruit_NeoPixel.h>
 #include <avr/power.h>
 
-#define PIN            3
-#define MAX_NUM_PIXELS 60
+#define PIN            3  // Data pin of LED strip
+#define MAX_NUM_PIXELS 10 // Max number of pixels to turn on
+#define STRIP_PIXEL_COUNT 60 // The number of pixels of the LED srip
 
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(MAX_NUM_PIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
@@ -30,6 +31,12 @@ void setup() {
   pinMode(ledPin, OUTPUT);
   Serial.begin(9600);
   pixels.begin();
+
+  // Turn all pixels off before starting
+  for(int i = 0; i < STRIP_PIXEL_COUNT;i++){
+    pixels.setPixelColor(i, pixels.Color(0, 0, 0)); 
+    pixels.show(); // This sends the updated pixel color to the hardware.
+  }
 }
 
 void update_min_max ()
@@ -67,10 +74,11 @@ void loop() {
   
   int num_pixels = output_value;
   
-  float brightness = 0.1;
+  const float brightness_base = 0.4;
   
   // turn the ledPin on
   for(int i = 0; i < num_pixels;i++){
+    const float brightness = (float)(num_pixels - i)/num_pixels * brightness_base;
     pixels.setPixelColor(i, pixels.Color(255*brightness, 0, 255*brightness)); // PINK!
     pixels.show(); // This sends the updated pixel color to the hardware.
   }

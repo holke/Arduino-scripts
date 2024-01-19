@@ -8,9 +8,10 @@
 
 #include <Adafruit_NeoPixel.h>
 #include <avr/power.h>
+#include "Poti.h"
 
 #define PIN            3  // Data pin of LED strip
-#define MAX_NUM_PIXELS 10 // Max number of pixels to turn on
+#define MAX_NUM_PIXELS 15 // Max number of pixels to turn on
 #define STRIP_PIXEL_COUNT 60 // The number of pixels of the LED srip
 
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(MAX_NUM_PIXELS, PIN, NEO_GRB + NEO_KHZ800);
@@ -18,13 +19,12 @@ Adafruit_NeoPixel pixels = Adafruit_NeoPixel(MAX_NUM_PIXELS, PIN, NEO_GRB + NEO_
 int delayval = 500;
 
 
-int sensorPin = A0;   // select the input pin for the potentiometer
+int PotiPin = A0;   // select the input pin for the potentiometer
 int ledPin = 9;      // select the pin for the LED
-int sensor_value = 0;  // variable to store the value coming from the sensor
 int counter = 0;
-int min_sensor_value = INT16_MAX;
-int max_sensor_value = 0;
 int output_value;
+
+Poti poti (PotiPin, 10, 1000);
 
 void setup() {
   // declare the ledPin as an OUTPUT:
@@ -39,15 +39,6 @@ void setup() {
   }
 }
 
-void update_min_max ()
-{
-  if (sensor_value < min_sensor_value) {
-    min_sensor_value = sensor_value;
-  }
-  if (sensor_value > max_sensor_value) {
-    max_sensor_value = sensor_value;
-  }
-}
 
 // Map the sensor value from the interval [min, max] to [0, 255].
 // Thus, subtract min, to map to [0, max-min],
@@ -56,9 +47,9 @@ void set_output_value ()
 {
   // Adjust for fluctuations, so that we can actually get values that turn
   // the LED of.
-  int adjusted_min = min_sensor_value + 10;
-  int adjusted_max = max_sensor_value;
-  float temp = sensor_value - adjusted_min;
+  int adjusted_min = poti.get_min() + 10;
+  int adjusted_max = poti.get_max();
+  float temp = poti.get_current()- adjusted_min;
   temp = temp * MAX_NUM_PIXELS;
   temp = temp / (adjusted_max - adjusted_min);
   output_value = temp;
@@ -68,8 +59,7 @@ void set_output_value ()
 
 void loop() {
   // read the value from the sensor:
-  sensor_value = analogRead(sensorPin);
-  update_min_max ();
+  poti.read_value ();
   set_output_value ();
   
   int num_pixels = output_value;
@@ -90,12 +80,7 @@ void loop() {
 
   delay (100);
   if (counter % 10 == 0) {
-    Serial.print("Sensor: ");
-    Serial.print(sensor_value);
-    Serial.print(", min: ");
-    Serial.print(min_sensor_value);
-    Serial.print(", max: ");
-    Serial.print(max_sensor_value);
+    poti.print ();
     Serial.print(", output: ");
     Serial.println(output_value);
   }

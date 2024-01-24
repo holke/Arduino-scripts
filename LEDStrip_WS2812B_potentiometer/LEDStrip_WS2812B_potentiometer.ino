@@ -15,7 +15,8 @@
 #define MAX_NUM_PIXELS 15 // Max number of pixels to turn on
 #define STRIP_PIXEL_COUNT 60 // The number of pixels of the LED srip
 
-fire_ws2812b Strip(MAX_NUM_PIXELS, PIN);
+fire_ws2812b<STRIP_PIXEL_COUNT> Strip(PIN);
+
 
 int delayval = 500;
 

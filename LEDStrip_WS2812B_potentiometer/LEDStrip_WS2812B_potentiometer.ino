@@ -9,12 +9,13 @@
 #include <Adafruit_NeoPixel.h>
 #include <avr/power.h>
 #include "Poti.h"
+#include "WS2812B_fire.h"
 
 #define PIN            3  // Data pin of LED strip
 #define MAX_NUM_PIXELS 15 // Max number of pixels to turn on
 #define STRIP_PIXEL_COUNT 60 // The number of pixels of the LED srip
 
-Adafruit_NeoPixel pixels = Adafruit_NeoPixel(MAX_NUM_PIXELS, PIN, NEO_GRB + NEO_KHZ800);
+fire_ws2812b Strip(MAX_NUM_PIXELS, PIN);
 
 int delayval = 500;
 
@@ -29,14 +30,8 @@ Poti poti (PotiPin, 10, 1000);
 void setup() {
   // declare the ledPin as an OUTPUT:
   pinMode(ledPin, OUTPUT);
-  Serial.begin(9600);
-  pixels.begin();
 
-  // Turn all pixels off before starting
-  for(int i = 0; i < STRIP_PIXEL_COUNT;i++){
-    pixels.setPixelColor(i, pixels.Color(0, 0, 0)); 
-    pixels.show(); // This sends the updated pixel color to the hardware.
-  }
+  Strip.turn_leds_off ();
 }
 
 
@@ -69,14 +64,15 @@ void loop() {
   // turn the ledPin on
   for(int i = 0; i < num_pixels;i++){
     const float brightness = (float)(num_pixels - i)/num_pixels * brightness_base;
-    pixels.setPixelColor(i, pixels.Color(255*brightness, 0, 255*brightness)); // PINK!
-    pixels.show(); // This sends the updated pixel color to the hardware.
+    Strip.turn_led_color_no_update (i, 255*brightness, 0, 255*brightness);
   }
   // turn the remaining pixels off
   for (int i = num_pixels; i < MAX_NUM_PIXELS;i++) {
-    pixels.setPixelColor(i, pixels.Color(0,0,0)); // OFF
-    pixels.show(); // This sends the updated pixel color to the hardware.
+    Strip.turn_led_color_no_update(i, 0,0,0); // OFF
   }
+
+  // Show all pixels
+  Strip.update ();
 
   delay (100);
   if (counter % 10 == 0) {

@@ -12,8 +12,8 @@
 #include "WS2812B_fire.h"
 
 #define PIN            3  // Data pin of LED strip
-#define MAX_NUM_PIXELS 15 // Max number of pixels to turn on
-#define STRIP_PIXEL_COUNT 60 // The number of pixels of the LED srip
+#define MAX_NUM_PIXELS 8 // Max number of pixels to turn on
+#define STRIP_PIXEL_COUNT 10 // The number of pixels of the LED srip
 
 fire_ws2812b<STRIP_PIXEL_COUNT> Strip(PIN);
 
@@ -31,8 +31,9 @@ Poti poti (PotiPin, 10, 1000);
 void setup() {
   // declare the ledPin as an OUTPUT:
   pinMode(ledPin, OUTPUT);
-
-  Strip.turn_leds_off ();
+  Serial.begin (9600);
+  Serial.println ("Starting");
+  Strip.init ();
 }
 
 
@@ -54,14 +55,15 @@ void set_output_value ()
 }
 
 void loop() {
+#if 1
   // read the value from the sensor:
   poti.read_value ();
   set_output_value ();
   
   int num_pixels = output_value;
   
-  const float brightness_base = 0.4;
-  
+  const float brightness_base = 0.1;
+
   // turn the ledPin on
   for(int i = 0; i < num_pixels;i++){
     const float brightness = (float)(num_pixels - i)/num_pixels * brightness_base;
@@ -82,4 +84,5 @@ void loop() {
     Serial.println(output_value);
   }
   counter++;
+#endif
 }

@@ -12,10 +12,15 @@ class fire_ws2812b
 {
   public:
 
-  fire_ws2812b (int data_pin) : num_pixels (num_pixels), data_pin (data_pin) 
+  fire_ws2812b (int data_pin) : num_pixels (NUM_PIXELS), data_pin (data_pin) 
   {
+  }
+
+  void init () 
+  {
+    Serial.println ("Init");
+    delay (100);
     pixels = Adafruit_NeoPixel(num_pixels, data_pin, NEO_GRB + NEO_KHZ800);
-    Serial.begin(9600);
     pixels.begin();
     // Turn all pixels off before starting
     turn_leds_off ();
@@ -24,6 +29,8 @@ class fire_ws2812b
   /* Turn all LEDs off. will update all LEDs */
   void turn_leds_off ()
   {
+    Serial.println("Turn Off");
+    delay (100);
     turn_leds_color (0, 0, 0);
   }
 
@@ -39,6 +46,13 @@ class fire_ws2812b
   /* Turn all LEDs to the same color. Will update all LEDs */
   void turn_leds_color (uint8_t red, uint8_t green, uint8_t blue)
   {
+    Serial.print ("Turn color: ");
+    Serial.print (red);
+    Serial.print (" ");
+    Serial.print (blue);
+    Serial.print (" ");
+    Serial.println (green);
+    delay (100);
     for(int i = 0; i < num_pixels;i++){
       turn_led_color_no_update (i, red, green, blue); 
     }
@@ -49,7 +63,7 @@ class fire_ws2812b
   void update ()
   {
     for(int led = 0; led < num_pixels;led++){
-      pixels.setPixelColor (led, pixels.Color(colors[0], colors[1], colors[2]));
+      pixels.setPixelColor (led, pixels.Color(colors[led][0], colors[led][1], colors[led][2]));
     }
     pixels.show(); // This sends the updated pixel color to the hardware.  
   }
